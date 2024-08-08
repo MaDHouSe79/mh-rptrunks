@@ -1,3 +1,3 @@
 # mh-rptrunks
-- place items in your trunk.
-- you don't get itmes ot anything, this is just for the roleplay
+- Place items in your trunk.
+- You don't get items or anything, this is just for the roleplay!
