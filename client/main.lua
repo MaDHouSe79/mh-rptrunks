@@ -4,6 +4,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local PlayerData = {}
 local vehicleData = {}
+local vehicles = {}
 local currentVehicle = nil
 local itemEntity = nil
 local hasItem = false
@@ -50,7 +51,7 @@ local function LoadAnimDict(dict)
 end
 
 local function DeleteAllBoxes()
-    for model, data in pairs(Config.Vehicles) do
+    for model, data in pairs(vehicles) do
         for id, storage in pairs(data.storages) do
             if DoesEntityExist(storage.entity) then DeleteEntity(storage.entity) end
             storage.entity = nil
@@ -81,19 +82,19 @@ end
 
 local function GetProp(vehicle, _type)
     local model = GetModelName(vehicle)
-    if Config.Vehicles[model] then
-        if type(Config.Vehicles[model].prop) == 'table' then
+    if vehicles[model] then
+        if type(vehicles[model].prop) == 'table' then
             if _type == 'coke_brick' then
-                return Config.Vehicles[model].prop.coke
+                return vehicles[model].prop.coke
             elseif _type == 'weed_brick' then
-                return Config.Vehicles[model].prop.weed
+                return vehicles[model].prop.weed
             elseif _type == 'boxen' then
-                return Config.Vehicles[model].prop.box
+                return vehicles[model].prop.box
             elseif _type == 'drank' then
-                return Config.Vehicles[model].prop.drank
+                return vehicles[model].prop.drank
             end
-        elseif type(Config.Vehicles[model].prop) == 'string' then
-            return Config.Vehicles[model].prop
+        elseif type(vehicles[model].prop) == 'string' then
+            return vehicles[model].prop
         end
     end
 end
@@ -104,7 +105,7 @@ local function TakeItem(prop)
     if not IsPedInAnyVehicle(player, false) and (DoesEntityExist(player) and not IsEntityDead(player)) and not hasItem then
         local x, y, z = table.unpack(GetEntityCoords(player))
         LoadModel(GetHashKey(prop))
-        itemEntity = CreateObject(GetHashKey(prop), x, y, z + 0.2,  true,  true, true)
+        itemEntity = CreateObject(GetHashKey(prop), x, y, z + 0.2,  true,  true, false)
         AttachEntityToEntity(itemEntity, player, GetPedBoneIndex(player, 60309), 0.2, 0.08, 0.2, -45.0, 290.0, 0.0, true, true, false, true, 1, true)
         TaskPlayAnim( player, "anim@heists@box_carry@", "idle", 3.0, -8, -1, 63, 0, 0, 0, 0 )
         hasItem = true
@@ -127,14 +128,14 @@ end
 
 local function AddItemToTrunk(vehicle)
     local model = GetModelName(vehicle)
-    if Config.Vehicles[model] then
-        local vehicleData = Config.Vehicles[model]
+    if vehicles[model] then
+        local vehicleData = vehicles[model]
         for _, storage in pairs(vehicleData.storages) do
             if vehicleData.countCapacity < vehicleData.maxCapacity and not storage.loaded then
                 storage.loaded = true
                 local prop = GetProp(vehicle, storage.itemType)
                 LoadModel(GetHashKey(prop))
-                local box = CreateObject(GetHashKey(prop), storage.coords.x, storage.coords.y, storage.coords.z, true, true, true)
+                local box = CreateObject(GetHashKey(prop), storage.coords.x, storage.coords.y, storage.coords.z, true, true, false)
                 AttachEntityToEntity(box, vehicle, 0, storage.coords.x, storage.coords.y, storage.coords.z - 0.2, storage.rotation.x, storage.rotation.y, storage.rotation.z, true, true, false, true, 1, true)
                 storage.entity = box
                 vehicleData.countCapacity = vehicleData.countCapacity + 1
@@ -159,8 +160,8 @@ end
 
 local function RemoveItemFromTrunk(vehicle)
     local model = GetModelName(vehicle)
-    if Config.Vehicles[model] then
-        local vehicleData = Config.Vehicles[model]
+    if vehicles[model] then
+        local vehicleData = vehicles[model]
         for id, storage in pairs(vehicleData.storages) do
             if storage and storage.loaded and vehicleData.countCapacity > 0 and DoesEntityExist(storage.entity) then
                 DeleteEntity(storage.entity)
@@ -202,13 +203,13 @@ end
 local function LoadVehicleWithItems(vehicle, _type)
     if isLoggedIn then
         local model = GetModelName(vehicle)
-        if Config.Vehicles[model] then
+        if vehicles[model] then
             local prop = GetProp(vehicle, _type)
             LoadModel(GetHashKey(prop))
-            for _, storage in pairs(Config.Vehicles[model].storages) do
-                if Config.Vehicles[model].countCapacity < Config.Vehicles[model].maxCapacity and not storage.loaded then
-                    Config.Vehicles[model].countCapacity = Config.Vehicles[model].countCapacity + 1
-                    local box = CreateObject(GetHashKey(prop), storage.coords.x, storage.coords.y, storage.coords.z, true, true, true)
+            for _, storage in pairs(vehicles[model].storages) do
+                if vehicles[model].countCapacity < vehicles[model].maxCapacity and not storage.loaded then
+                    vehicles[model].countCapacity = vehicles[model].countCapacity + 1
+                    local box = CreateObject(GetHashKey(prop), storage.coords.x, storage.coords.y, storage.coords.z, true, true, false)
                     AttachEntityToEntity(box, vehicle, 0, storage.coords.x, storage.coords.y, storage.coords.z - 0.2, storage.rotation.x, storage.rotation.y, storage.rotation.z, true, true, false, true, 1, true)
                     storage.loaded = true
                     storage.entity = box
@@ -243,7 +244,7 @@ AddEventHandler('onResourceStop', function(resource)
     end
 end)
 
-RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors)
+RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, door)
     local vehicle = NetworkGetEntityFromNetworkId(netid)
     if DoesEntityExist(vehicle) then
         exports['qb-target']:AddTargetEntity(vehicle, {
@@ -252,9 +253,9 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Open Trunk",
+                    label = Lang:t('target.open_trunk'),
                     action = function(entity)
-                        ToggleDoor(entity, doors)
+                        ToggleDoor(entity, door)
                     end,
                     canInteract = function(entity, distance, data)
                         if IsPedAPlayer(entity) then return false end
@@ -265,9 +266,9 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Close Trunk",
+                    label = Lang:t('target.close_trunk'),
                     action = function(entity)
-                        ToggleDoor(entity, doors)
+                        ToggleDoor(entity, door)
                     end,
                     canInteract = function(entity, distance, data)
                         if IsPedAPlayer(entity) then return false end
@@ -278,7 +279,7 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Load Prop",
+                    label = Lang:t('target.load_prop'),
                     action = function(entity)
                         AddItemToTrunk(entity)
                     end,
@@ -293,7 +294,7 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Take Prop",
+                    label = Lang:t('target.take_prop'),
                     action = function(entity)
                         RemoveItemFromTrunk(entity)
                     end,
@@ -309,7 +310,7 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Load Coke",
+                    label = Lang:t('target.load_coke'),
                     action = function(entity)
                         isCokeLoaded = true
                         DeleteAllBoxes()
@@ -330,7 +331,7 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Load Weed",
+                    label = Lang:t('target.load_weed'),
                     action = function(entity)
                         isWeedLoaded = true
                         DeleteAllBoxes()
@@ -351,7 +352,7 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Load Boxes",
+                    label = Lang:t('target.load_boxes'),
                     action = function(entity)
                         isBoxLoaded = true
                         DeleteAllBoxes()
@@ -372,7 +373,7 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "Load Drank",
+                    label = Lang:t('target.load_drank'),
                     action = function(entity)
                         isDrankLoaded = true
                         DeleteAllBoxes()
@@ -393,7 +394,7 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
                     type = "client",
                     event = "",
                     icon = "fas fa-car",
-                    label = "UnLoad Trunk",
+                    label = Lang:t('target.unload_trunk'),
                     action = function(entity)
                         DeleteAllBoxes()
                         isCokeLoaded = false
@@ -412,9 +413,8 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, doors
     end
 end)
 
-RegisterNetEvent('mh-rptrunks:client:sendConfig', function(config, animations)
-    Config.Vehicles = config
-    Config.Animations = animations
+RegisterNetEvent('mh-rptrunks:client:sendConfig', function(config)
+    vehicles = config
     isLoggedIn = true
 end)
 
@@ -422,7 +422,7 @@ CreateThread(function()
     while true do
         Wait(0)
         if isLoggedIn and hasItem then
-            DisplayHelpText("Press [E] to drop")
+            DisplayHelpText(Lang:t('info.press_to_drop'))
             if IsControlJustPressed(0, 38) then RemoveStuckProp() end
         end
     end
