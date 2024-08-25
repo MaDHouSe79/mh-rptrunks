@@ -18,7 +18,7 @@
     <img src="https://img.shields.io/github/stars/MaDHouSe79/mh-rptrunks?color=white"/> 
   </a>
   <a href="https://github.com/MaDHouSe79/mh-rptrunks/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/MaDHouSe79/mh-rptrunks?color=white"/> 
+    <img src="https://img.shields.io/github/license/MaDHouSe79/mh-rptrunks?color=black"/> 
   </a>      
 </p>
 
