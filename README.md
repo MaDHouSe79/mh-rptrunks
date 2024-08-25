@@ -37,8 +37,7 @@
 
 # Dependencies
 - [qb-core](https://github.com/qbcore-framework/qb-core)
-- [ox_lib](https://github.com/overextended/ox_lib)
-- [qb-target](https://github.com/qbcore-framework/qb-target) or [ox_target](https://github.com/overextended/ox_target)
+- [qb-target](https://github.com/qbcore-framework/qb-target)
 
 # LICENSE
 [GPL LICENSE](./LICENSE)<br />
