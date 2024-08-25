@@ -5,20 +5,20 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MaDHouSe79/mh-stashes/issues">
-    <img src="https://img.shields.io/github/issues/MaDHouSe79/mh-stashes"/> 
+  <a href="https://github.com/MaDHouSe79/mh-rptrunks /issues">
+    <img src="https://img.shields.io/github/issues/MaDHouSe79/mh-rptrunks "/> 
   </a>
-  <a href="https://github.com/MaDHouSe79/mh-stashes/watchers">
-    <img src="https://img.shields.io/github/watchers/MaDHouSe79/mh-stashes"/> 
+  <a href="https://github.com/MaDHouSe79/mh-rptrunks /watchers">
+    <img src="https://img.shields.io/github/watchers/MaDHouSe79/mh-rptrunks "/> 
   </a> 
-  <a href="https://github.com/MaDHouSe79/mh-stashes/network/members">
-    <img src="https://img.shields.io/github/forks/MaDHouSe79/mh-stashes"/> 
+  <a href="https://github.com/MaDHouSe79/mh-rptrunks /network/members">
+    <img src="https://img.shields.io/github/forks/MaDHouSe79/mh-rptrunks "/> 
   </a>  
-  <a href="https://github.com/MaDHouSe79/mh-stashes/stargazers">
-    <img src="https://img.shields.io/github/stars/MaDHouSe79/mh-stashes?color=white"/> 
+  <a href="https://github.com/MaDHouSe79/mh-rptrunks /stargazers">
+    <img src="https://img.shields.io/github/stars/MaDHouSe79/mh-rptrunks ?color=white"/> 
   </a>
-  <a href="https://github.com/MaDHouSe79/mh-stashes/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/MaDHouSe79/mh-stashes?color=black"/> 
+  <a href="https://github.com/MaDHouSe79/mh-rptrunks /blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/MaDHouSe79/mh-rptrunks ?color=black"/> 
   </a>      
 </p>
 
