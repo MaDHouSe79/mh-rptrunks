@@ -6,7 +6,7 @@ game 'gta5'
 lua54 'yes'
 author "MaDHouSe"
 description "MH - RP Trunks"
-version "1.0"
+version "1.0.0"
 
 shared_scripts {'@qb-core/shared/locale.lua', 'locales/en.lua',}
 client_scripts {'client/main.lua'}
