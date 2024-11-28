@@ -15,6 +15,7 @@ local isBoxLoaded = false
 local isDrankLoaded = false
 local isWeedLoaded = false
 local isLoggedIn = false
+local targetScript = nil
 
 local function DisplayHelpText(text)
     SetTextComponentFormat('STRING')
@@ -23,17 +24,9 @@ local function DisplayHelpText(text)
 end
 
 local function GetModelName(vehicle)
-    local newName = nil
     local model = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle))
-    local model_label = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
-    if newName == nil then
-        if model ~= nil then 
-            newName = model
-        else
-            if model_label ~= nil then newName = model_label end 
-        end
-    end
-    return newName:lower()
+    print(model)
+    return model:lower()
 end
 
 local function LoadModel(model)
@@ -247,155 +240,260 @@ end)
 RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, door)
     local vehicle = NetworkGetEntityFromNetworkId(netid)
     if DoesEntityExist(vehicle) then
-        exports['qb-target']:AddTargetEntity(vehicle, {
-            options = {
+        if targetScript == "qb-target" then
+            exports['qb-target']:AddTargetEntity(netid, {
+                options = {
+                    {
+                        type = "client",
+                        icon = "fas fa-car",
+                        label = Lang:t('target.load_prop'),
+                        action = function(entity)
+                            AddItemToTrunk(entity)
+                        end,
+                        canInteract = function(entity, distance, data)
+                            if IsPedAPlayer(entity) then return false end
+                            if not hasItem then return false end
+                            if not isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                            return true
+                        end
+                    }, {
+                        type = "client",
+                        icon = "fas fa-car",
+                        label = Lang:t('target.take_prop'),
+                        action = function(entity)
+                            RemoveItemFromTrunk(entity)
+                        end,
+                        canInteract = function(entity, distance, data)
+                            if IsPedAPlayer(entity) then return false end
+                            if hasItem then return false end
+                            if not isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                            return true
+                        end
+                    }, 
+                    {
+                        type = "client",
+                        icon = "fas fa-car",
+                        label = Lang:t('target.load_coke'),
+                        action = function(entity)
+                            isCokeLoaded = true
+                            DeleteAllBoxes()
+                            LoadVehicleWithItems(entity, 'coke_brick')
+                        end,
+                        canInteract = function(entity, distance, data)
+                            if IsPedAPlayer(entity) then return false end
+                            if isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                            if isCokeLoaded then return false end
+                            if isDrankLoaded then return false end
+                            if isBoxLoaded then return false end
+                            if isWeedLoaded then return false end                 
+                            return true
+                        end
+                    },
+                    {
+                        type = "client",
+                        icon = "fas fa-car",
+                        label = Lang:t('target.load_weed'),
+                        action = function(entity)
+                            isWeedLoaded = true
+                            DeleteAllBoxes()
+                            LoadVehicleWithItems(entity, 'weed_brick')
+                        end,
+                        canInteract = function(entity, distance, data)
+                            if IsPedAPlayer(entity) then return false end
+                            if isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                            if isWeedLoaded then return false end
+                            if isDrankLoaded then return false end
+                            if isBoxLoaded then return false end
+                            if isCokeLoaded then return false end
+                            return true
+                        end
+                    },
+                    {
+                        type = "client",
+                        icon = "fas fa-car",
+                        label = Lang:t('target.load_boxes'),
+                        action = function(entity)
+                            isBoxLoaded = true
+                            DeleteAllBoxes()
+                            LoadVehicleWithItems(entity, 'boxen')
+                        end,
+                        canInteract = function(entity, distance, data)
+                            if IsPedAPlayer(entity) then return false end
+                            if isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                            if isBoxLoaded then return false end  
+                            if isDrankLoaded then return false end
+                            if isCokeLoaded then return false end
+                            if isWeedLoaded then return false end                      
+                            return true
+                        end
+                    },
+                    {
+                        type = "client",
+                        icon = "fas fa-car",
+                        label = Lang:t('target.load_drank'),
+                        action = function(entity)
+                            isDrankLoaded = true
+                            DeleteAllBoxes()
+                            LoadVehicleWithItems(entity, 'drank')
+                        end,
+                        canInteract = function(entity, distance, data)
+                            if IsPedAPlayer(entity) then return false end
+                            if isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                            if isDrankLoaded then return false end
+                            if isBoxLoaded then return false end
+                            if isCokeLoaded then return false end
+                            if isWeedLoaded then return false end
+                            return true
+                        end
+                    },
+                    {
+                        type = "client",
+                        icon = "fas fa-car",
+                        label = Lang:t('target.unload_trunk'),
+                        action = function(entity)
+                            DeleteAllBoxes()
+                            isCokeLoaded = false
+                            isBoxLoaded = false
+                        end,
+                        canInteract = function(entity, distance, data)
+                            if IsPedAPlayer(entity) then return false end
+                            if not isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                            return true
+                        end
+                    },
+                },
+                distance = 5.0
+            })
+        elseif targetScript == "ox_target" then
+            exports.ox_target:addEntity(netid, {
                 {
                     type = "client",
-                    event = "",
-                    icon = "fas fa-car",
-                    label = Lang:t('target.open_trunk'),
-                    action = function(entity)
-                        ToggleDoor(entity, door)
-                    end,
-                    canInteract = function(entity, distance, data)
-                        if IsPedAPlayer(entity) then return false end
-                        if isTrunkOpen then return false end
-                        return true
-                    end
-                }, {
-                    type = "client",
-                    event = "",
-                    icon = "fas fa-car",
-                    label = Lang:t('target.close_trunk'),
-                    action = function(entity)
-                        ToggleDoor(entity, door)
-                    end,
-                    canInteract = function(entity, distance, data)
-                        if IsPedAPlayer(entity) then return false end
-                        if not isTrunkOpen then return false end
-                        return true
-                    end
-                }, {
-                    type = "client",
-                    event = "",
                     icon = "fas fa-car",
                     label = Lang:t('target.load_prop'),
-                    action = function(entity)
-                        AddItemToTrunk(entity)
+                    onSelect = function(data)
+                        AddItemToTrunk(data.entity)
                     end,
                     canInteract = function(entity, distance, data)
                         if IsPedAPlayer(entity) then return false end
                         if not hasItem then return false end
                         if not isLoaded then return false end
-                        if not isTrunkOpen then return false end
+                        if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
                         return true
-                    end
-                }, {
-                    type = "client",
-                    event = "",
-                    icon = "fas fa-car",
-                    label = Lang:t('target.take_prop'),
-                    action = function(entity)
-                        RemoveItemFromTrunk(entity)
                     end,
-                    canInteract = function(entity, distance, data)
-                        if IsPedAPlayer(entity) then return false end
-                        if hasItem then return false end
-                        if not isLoaded then return false end
-                        if not isTrunkOpen then return false end
-                        return true
-                    end
-                }, 
-                {
-                    type = "client",
-                    event = "",
-                    icon = "fas fa-car",
-                    label = Lang:t('target.load_coke'),
-                    action = function(entity)
-                        isCokeLoaded = true
-                        DeleteAllBoxes()
-                        LoadVehicleWithItems(entity, 'coke_brick')
-                    end,
-                    canInteract = function(entity, distance, data)
-                        if IsPedAPlayer(entity) then return false end
-                        if isLoaded then return false end
-                        if not isTrunkOpen then return false end
-                        if isCokeLoaded then return false end
-                        if isDrankLoaded then return false end
-                        if isBoxLoaded then return false end
-                        if isWeedLoaded then return false end                 
-                        return true
-                    end
+                    distance = 5.0
                 },
                 {
                     type = "client",
-                    event = "",
                     icon = "fas fa-car",
-                    label = Lang:t('target.load_weed'),
-                    action = function(entity)
-                        isWeedLoaded = true
+                    label = Lang:t('target.take_prop'),
+                    onSelect = function(data)
+                        RemoveItemFromTrunk(data.entity)
+                    end,
+                    canInteract = function(entity, distance, data)
+                        if IsPedAPlayer(entity) then return false end
+                            if hasItem then return false end
+                            if not isLoaded then return false end
+                            if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                        return true
+                    end,
+                    distance = 5.0
+                },
+                {
+                    type = "client",
+                    icon = "fas fa-car",
+                    label = Lang:t('target.load_coke'),
+                    onSelect = function(data)
+                        isCokeLoaded = true
                         DeleteAllBoxes()
-                        LoadVehicleWithItems(entity, 'weed_brick')
+                        LoadVehicleWithItems(data.entity, 'coke_brick')
                     end,
                     canInteract = function(entity, distance, data)
                         if IsPedAPlayer(entity) then return false end
                         if isLoaded then return false end
-                        if not isTrunkOpen then return false end
+                        if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
+                        if isCokeLoaded then return false end
+                        if isDrankLoaded then return false end
+                        if isBoxLoaded then return false end
+                        if isWeedLoaded then return false end 
+                        return true
+                    end,
+                    distance = 5.0
+                },
+                {
+                    type = "client",
+                    icon = "fas fa-car",
+                    label = Lang:t('target.load_weed'),
+                    onSelect = function(data)
+                        isWeedLoaded = true
+                        DeleteAllBoxes()
+                        LoadVehicleWithItems(data.entity, 'weed_brick')
+                    end,
+                    canInteract = function(entity, distance, data)
+                        if IsPedAPlayer(entity) then return false end
+                        if isLoaded then return false end
+                        if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
                         if isWeedLoaded then return false end
                         if isDrankLoaded then return false end
                         if isBoxLoaded then return false end
                         if isCokeLoaded then return false end
                         return true
-                    end
+                    end,
+                    distance = 5.0
                 },
                 {
                     type = "client",
-                    event = "",
                     icon = "fas fa-car",
                     label = Lang:t('target.load_boxes'),
-                    action = function(entity)
+                    onSelect = function(data)
                         isBoxLoaded = true
                         DeleteAllBoxes()
-                        LoadVehicleWithItems(entity, 'boxen')
+                        LoadVehicleWithItems(data.entity, 'boxen')
                     end,
                     canInteract = function(entity, distance, data)
                         if IsPedAPlayer(entity) then return false end
                         if isLoaded then return false end
-                        if not isTrunkOpen then return false end
+                        if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
                         if isBoxLoaded then return false end  
                         if isDrankLoaded then return false end
                         if isCokeLoaded then return false end
-                        if isWeedLoaded then return false end                      
+                        if isWeedLoaded then return false end  
                         return true
-                    end
+                    end,
+                    distance = 5.0
                 },
                 {
                     type = "client",
-                    event = "",
                     icon = "fas fa-car",
                     label = Lang:t('target.load_drank'),
-                    action = function(entity)
+                    onSelect = function(data)
                         isDrankLoaded = true
                         DeleteAllBoxes()
-                        LoadVehicleWithItems(entity, 'drank')
+                        LoadVehicleWithItems(data.entity, 'drank')
                     end,
                     canInteract = function(entity, distance, data)
                         if IsPedAPlayer(entity) then return false end
                         if isLoaded then return false end
-                        if not isTrunkOpen then return false end
+                        if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
                         if isDrankLoaded then return false end
                         if isBoxLoaded then return false end
                         if isCokeLoaded then return false end
-                        if isWeedLoaded then return false end
+                        if isWeedLoaded then return false end 
                         return true
-                    end
+                    end,
+                    distance = 5.0
                 },
                 {
                     type = "client",
-                    event = "",
                     icon = "fas fa-car",
                     label = Lang:t('target.unload_trunk'),
-                    action = function(entity)
+                    onSelect = function(data)
                         DeleteAllBoxes()
                         isCokeLoaded = false
                         isBoxLoaded = false
@@ -403,18 +501,19 @@ RegisterNetEvent('mh-rptrunks:client:CreateVehicleTarget', function(netid, door)
                     canInteract = function(entity, distance, data)
                         if IsPedAPlayer(entity) then return false end
                         if not isLoaded then return false end
-                        if not isTrunkOpen then return false end
+                        if GetVehicleDoorAngleRatio(entity, door) <= 0.0 then return false end
                         return true
-                    end
+                    end,
+                    distance = 5.0
                 },
-            },
-            distance = 5.0
-        })
+            })
+        end
     end
 end)
 
-RegisterNetEvent('mh-rptrunks:client:sendConfig', function(config)
+RegisterNetEvent('mh-rptrunks:client:sendConfig', function(config, target)
     vehicles = config
+    targetScript = target
     isLoggedIn = true
 end)
 
