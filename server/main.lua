@@ -6,7 +6,7 @@ local QBCore = exports['qb-core']:GetCoreObject()
 RegisterNetEvent('mh-rptrunks:server:refreshConfig')
 AddEventHandler('mh-rptrunks:server:refreshConfig', function()
     local src = source
-    TriggerClientEvent('mh-rptrunks:client:sendConfig', src, SV_Config.Vehicles)
+    TriggerClientEvent('mh-rptrunks:client:sendConfig', src, SV_Config.Vehicles, SV_Config.Target)
 end)
 
 RegisterNetEvent('entityCreating')
