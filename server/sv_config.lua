@@ -3,6 +3,8 @@
 --[[ ===================================================== ]] --
 SV_Config = {}
 
+SV_Config.Target = "ox_target" -- qb-target or ox_target
+
 SV_Config.Animations = {
     bag = {
         pickup = {
