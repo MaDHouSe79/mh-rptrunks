@@ -25,7 +25,6 @@ end
 
 local function GetModelName(vehicle)
     local model = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle))
-    print(model)
     return model:lower()
 end
 
