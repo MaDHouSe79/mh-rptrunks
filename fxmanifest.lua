@@ -8,6 +8,6 @@ author "MaDHouSe"
 description "MH - RP Trunks"
 version "1.0.0"
 
-shared_scripts {'@qb-core/shared/locale.lua', 'locales/en.lua',}
+shared_scripts {'shared/locale.lua', 'locales/en.lua',}
 client_scripts {'client/main.lua'}
 server_scripts {'server/sv_config.lua', 'server/main.lua', 'server/update.lua'}
