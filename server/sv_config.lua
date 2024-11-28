@@ -55,7 +55,7 @@ SV_Config.Animations = {
 SV_Config.Vehicles = {
 
     ['blista'] = { 
-        doors = 5,
+        doors = 5, -- trunk door number (1 door)
         maxCapacity = 2,
         countCapacity = 0,
         prop = { weed = "prop_weed_block_01", coke = "prop_coke_block_01", box = "prop_cs_box_clothes", drank = "prop_beer_box_01" },
@@ -66,7 +66,7 @@ SV_Config.Vehicles = {
     },
 
     ['adder'] = { 
-        doors = 4,
+        doors = 4, -- trunk door number (1 door)
         maxCapacity = 2,
         countCapacity = 0,
         prop = { weed = "prop_weed_block_01", coke = "prop_coke_block_01", box = "prop_cs_box_clothes", drank = "prop_beer_box_01" },
@@ -77,7 +77,7 @@ SV_Config.Vehicles = {
     },
 
     ["speedo"] = { 
-        doors = {2, 3},
+        doors = {2, 3}, -- trunk door numbers (2 doors)
         maxCapacity = 24,
         countCapacity = 0,
         prop = "v_ind_cf_chckbox2", -- don't change the prop
@@ -118,7 +118,7 @@ SV_Config.Vehicles = {
     },
     
     ["stockade"] = {
-        doors = {2, 3},
+        doors = {2, 3}, -- trunk door numbers (2 doors)
         maxCapacity = 15,
         countCapacity = 0,
         prop = "prop_money_bag_01", -- don't change the prop
